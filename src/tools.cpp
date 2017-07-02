@@ -3,6 +3,7 @@
 
 using Eigen::VectorXd;
 using Eigen::MatrixXd;
+using Eigen::IOFormat;
 using std::vector;
 
 Tools::Tools() {}
@@ -11,10 +12,6 @@ Tools::~Tools() {}
 
 VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
                               const vector<VectorXd> &ground_truth) {
-  /**
-  TODO:
-    * Calculate the RMSE here.
-  */
     VectorXd rmse(4);
     rmse << 0,0,0,0;
 
@@ -22,7 +19,7 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
     //  * the estimation vector size should not be zero
     //  * the estimation vector size should equal ground truth vector size
     if(estimations.size() != ground_truth.size()
-       || estimations.size() == 0){
+       || estimations.empty()){
         cout << "Invalid estimation or ground_truth data" << endl;
         return rmse;
     }
@@ -44,38 +41,36 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
     rmse = rmse.array().sqrt();
 
     //return the result
+    IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
+    //cout << "RSME:" << rmse.format(CleanFmt) << endl;
     return rmse;
 }
 
-MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
-  /**
-  TODO:
-    * Calculate a Jacobian here.
-  */
+MatrixXd Tools::CalculateJacobian(const VectorXd &x_state) {
     MatrixXd Hj(3,4);
-//recover state parameters
-    float px = x_state(0);
-    float py = x_state(1);
-    float vx = x_state(2);
-    float vy = x_state(3);
 
-//TODO: YOUR CODE HERE
+    //recover state parameters
+    double px = x_state(0);
+    double py = x_state(1);
+    double vx = x_state(2);
+    double vy = x_state(3);
 
-//check division by zero
-    float a = pow(px,2)+pow(py,2);
-    float b = pow(a,3/2);
-    float c = vx*py;
-    float d = vy*px;
-
-    if(fabs(a) < 0.0001){
+    //pre-compute a set of terms to avoid repeated calculation
+    double c1 = px*px+py*py;
+    //check division by zero
+    if(fabs(c1) <= 0.0001){
         cout << "CalculateJacobian () - Error - Division by Zero" << endl;
-        return Hj;
+        return MatrixXd::Zero(3,4);
     }
+    double c2 = sqrt(c1);
+    double c3 = (c1*c2);
 
-//compute the Jacobian matrix
-    Hj << px/sqrt(a),py/sqrt(a), 0, 0,
-            -py/a,px/a, 0, 0,
-            py*(c-d)/b, px*(d-c)/b, px/sqrt(a),py/sqrt(a);
+
+
+    //compute the Jacobian matrix
+    Hj << (px/c2), (py/c2), 0, 0,
+            -(py/c1), (px/c1), 0, 0,
+            py*(vx*py - vy*px)/c3, px*(px*vy - py*vx)/c3, px/c2, py/c2;
 
     return Hj;
 }

@@ -31,6 +31,8 @@ public:
      */
     void Init(const MeasurementPackage &measurement_pack);
 
+    bool Update(const MeasurementPackage &measurement_pack);
+
     /**
     * Kalman Filter update and prediction math lives in here.
     */
@@ -43,13 +45,10 @@ private:
     // previous timestamp
     long long previous_timestamp_;
 
-    // tool object used to compute Jacobian and RMSE
-    Tools tools;
     Eigen::MatrixXd R_laser_;
     Eigen::MatrixXd R_radar_;
     Eigen::MatrixXd H_laser_;
-    Eigen::MatrixXd Hj_;
-
+    Eigen::MatrixXd H_radar;
     float noise_ax;
     float noise_ay;
 };
