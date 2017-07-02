@@ -27,20 +27,21 @@ void KalmanFilter::Predict() {
 }
 
 void KalmanFilter::Update(const VectorXd &z) {
-    cout << "Update" << endl;
+    //cout << "Update" << endl;
     VectorXd z_pred = H_ * x_;
     VectorXd y = z - z_pred;
-    cout << "y: " << y(1) << endl;
+    //cout << "y: " << y(1) << endl;
     CommonUpdate(y);
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
-    cout << "Update EKF" << endl;
+    //cout << "Update EKF" << endl;
     double px = x_(0);
     double py = x_(1);
     double vx = x_(2);
     double vy = x_(3);
 
+    //Do not let rho be smaller than 1e-5 avoiding bad values
     double rho = std::max(1e-5, sqrt(px * px + py * py));
     double phi = atan2(py, px);
     double rho_dot = (px * vx + py * vy) / (rho);
@@ -48,11 +49,12 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     VectorXd z_pred = VectorXd(3);
     z_pred << rho, phi, rho_dot;
     VectorXd y = z - z_pred;
-    cout << "y EKF: " << y(1) << endl;
+    //Correcting angles as suggested on tips and tricks
+    //cout << "y EKF: " << y(1) << endl;
     if (y(1) < -M_PI || y(1) > M_PI) {
-        cout << "y(1) out of range: " << y(1) << endl;
+        //cout << "y(1) out of range: " << y(1) << endl;
         y(1) = fmod(y(1),M_PI);
-        cout << "y(1) corrected: " << y(1) << endl;
+        //cout << "y(1) corrected: " << y(1) << endl;
     }
     CommonUpdate(y);
 }

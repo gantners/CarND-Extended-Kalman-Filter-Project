@@ -10,6 +10,12 @@ Tools::Tools() {}
 
 Tools::~Tools() {}
 
+/**
+ * Calculate RSME as in lessons
+ * @param estimations
+ * @param ground_truth
+ * @return
+ */
 VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
                               const vector<VectorXd> &ground_truth) {
     VectorXd rmse(4);
@@ -46,6 +52,11 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
     return rmse;
 }
 
+/**
+ * Calculate Jacobian as in lessons
+ * @param x_state
+ * @return
+ */
 MatrixXd Tools::CalculateJacobian(const VectorXd &x_state) {
     MatrixXd Hj(3,4);
 
